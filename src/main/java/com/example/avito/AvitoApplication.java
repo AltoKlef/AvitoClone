@@ -1,13 +1,13 @@
-package com.example.Avito2;
+package com.example.avito;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Avito2Application {
+public class AvitoApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Avito2Application.class, args);
+		SpringApplication.run(AvitoApplication.class, args);
 	}
 
 }
