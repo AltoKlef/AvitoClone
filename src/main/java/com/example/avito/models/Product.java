@@ -43,5 +43,7 @@ public class Product {
     }
 
     public void addImageToProduct(Image image) {
+        image.setProduct(this);
+        images.add(image);
     }
 }
