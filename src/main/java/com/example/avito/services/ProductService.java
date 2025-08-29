@@ -25,27 +25,38 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public void saveProduct(Product product, MultipartFile file1, MultipartFile file2, MultipartFile file3) throws IOException {
-        Image image1;
-        Image image2;
-        Image image3;
-        if (file1.getSize() != 0) {
-            image1 = toImageEntity(file1);
-            image1.setPreviewImage(true);
-            product.addImageToProduct(image1);
+    public void saveProduct(Product product, List<MultipartFile> files) throws IOException {
+        if (files.size() > 5) {
+            throw new IllegalArgumentException("Можно загрузить максимум 5 изображений");
         }
-        if (file2.getSize() != 0) {
-            image2 = toImageEntity(file2);
-            product.addImageToProduct(image2);
+
+        int index = 0;
+        for (MultipartFile file : files) {
+            if (file == null || file.isEmpty()) {
+                continue;
+            }
+
+            // проверка что файл - изображение
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("Файл " + file.getOriginalFilename() + " не является изображением");
+            }
+
+            Image image = toImageEntity(file);
+            if (index == 0) {
+                image.setPreviewImage(true);
+            }
+            product.addImageToProduct(image);
+            index++;
         }
-        if (file3.getSize() != 0) {
-            image3 = toImageEntity(file3);
-            product.addImageToProduct(image3);
-        }
+
         log.info("Saving new Product. Title: {}; Author: {}", product.getTitle(), product.getAuthor());
         Product productFromDb = productRepository.save(product);
-        productFromDb.setPreviewImageId(productFromDb.getImages().get(0).getId());
-        productRepository.save(product);
+
+        if (!productFromDb.getImages().isEmpty()) {
+            productFromDb.setPreviewImageId(productFromDb.getImages().get(0).getId());
+            productRepository.save(productFromDb);
+        }
     }
 
     private Image toImageEntity(MultipartFile file) throws IOException {
